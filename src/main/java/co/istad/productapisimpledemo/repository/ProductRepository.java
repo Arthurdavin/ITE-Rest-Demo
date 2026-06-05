@@ -1,12 +1,11 @@
 package co.istad.productapisimpledemo.repository;
 
-import co.istad.productapisimpledemo.dto.request.UpdateProductRequest;
 import co.istad.productapisimpledemo.entity.Product;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 @Repository
 public class ProductRepository {
@@ -26,7 +25,7 @@ public class ProductRepository {
         return products.stream()
                 .filter(product -> product.getId() == id)
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(()->new NoSuchElementException("Product not found! "+id+" Not found!"));//NoSuchElementException
     }
 
     public List<Product> getAllProduct() {
