@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Slf4j
@@ -48,15 +47,6 @@ public class CategoryServiceImpl implements CategoryService {
                 .map(categoryMapper::categoryEntityToCategoryResponse);
     }
 
-//    @Override
-//    public List<CategoryResponse> getAllCategories() {
-//
-//        return categoryRepository
-//                .findAllByIsDeletedFalse()
-//                .stream()
-//                .map(categoryMapper::categoryEntityToCategoryResponse).toList();
-//    }
-
     @Override
     public CategoryResponse getCategoryById(Integer id) {
         Category category = categoryRepository
@@ -73,7 +63,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category exitCategory =
                 categoryRepository
                 .findByIdAndIsDeletedFalse(id)
-                .orElseThrow(()->new RuntimeException("category not found"));
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "category not found"));
         if (request.name()!=null){
             if (categoryRepository.existsByNameAndIdNot(request.name(),id)){
                 throw new ResourceAlreadyExistException(
