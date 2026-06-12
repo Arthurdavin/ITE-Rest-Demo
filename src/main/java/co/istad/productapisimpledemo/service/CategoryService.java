@@ -1,6 +1,7 @@
 package co.istad.productapisimpledemo.service;
 
 import co.istad.productapisimpledemo.dto.request.CreateCategoryRequest;
+import co.istad.productapisimpledemo.dto.request.UpdateCategoryRequest;
 import co.istad.productapisimpledemo.dto.request.UpdateProductRequest;
 import co.istad.productapisimpledemo.dto.response.CategoryResponse;
 
@@ -10,6 +11,6 @@ public interface CategoryService {
     CategoryResponse createCategory(CreateCategoryRequest createCategoryRequest);
     List<CategoryResponse> getAllCategories();
     CategoryResponse getCategoryById(Integer id);
-    CategoryResponse updateCategoryById(Integer id, UpdateProductRequest updateProductRequest);
-    Boolean deleteCategoryById(Integer id);
+    CategoryResponse updateCategoryById(Integer id, UpdateCategoryRequest updateCategoryRequest);
+    void deleteCategoryById(Integer id);
 }

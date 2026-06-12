@@ -11,6 +11,8 @@ public record CreateProductRequest(
         String description,
         @NotNull(message = "price is required")
         @Positive(message = "price is must positive")
-        Float price
+        Float price,
+        @NotNull(message = "categoryId is required")
+        Integer categoryId
 ) {
 }

@@ -6,6 +6,9 @@ import co.istad.productapisimpledemo.dto.response.ProductResponse;
 import co.istad.productapisimpledemo.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +28,9 @@ public class ProductRestController {
     }
 
     @GetMapping
-    public List<ProductResponse> getAllProducts(){
-        return productService.findAllProducts();
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(
+            @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(productService.findAllProducts(pageable));
     }
 
     @GetMapping("/{id}")
@@ -35,18 +39,36 @@ public class ProductRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Integer id){
-        boolean isDeleted = productService.deleteProduct(id);
-        if (isDeleted){
-            return ResponseEntity.noContent().build();
-        }
-        else {
-            return ResponseEntity.notFound().build();
-        }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProduct(@PathVariable Integer id){
+        productService.deleteProduct(id);
     }
 
     @PatchMapping("/{id}")
     public ProductResponse updateProduct(@PathVariable Integer id, @RequestBody UpdateProductRequest request){
         return productService.updateProduct(id,request);
     }
+
+    @GetMapping("/search")
+    public List<ProductResponse> searchProducts(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Double minPrice
+    ) {
+        return productService.searchProducts(
+                name,
+                minPrice
+        );
+    }
+
+    @GetMapping("/searchkeyword")
+    public Page<ProductResponse> search(
+            @RequestParam(required = false) String keyword,
+            @ParameterObject Pageable pageable
+    ){
+        return productService.search(keyword,pageable);
+    }
 }
+
+
+
+

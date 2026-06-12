@@ -1,20 +1,19 @@
 package co.istad.productapisimpledemo.restController;
 
 import co.istad.productapisimpledemo.dto.request.CreateCategoryRequest;
-import co.istad.productapisimpledemo.dto.request.UpdateProductRequest;
+import co.istad.productapisimpledemo.dto.request.UpdateCategoryRequest;
 import co.istad.productapisimpledemo.dto.response.CategoryResponse;
 
 import co.istad.productapisimpledemo.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/catories")
+@RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
 
 public class CategoryRestController {
@@ -38,19 +37,15 @@ public class CategoryRestController {
     }
 
     @PatchMapping("/{id}")
-    public CategoryResponse updateCategory(@PathVariable Integer id, @RequestBody UpdateProductRequest request){
+    public CategoryResponse updateCategory(@PathVariable Integer id, @RequestBody UpdateCategoryRequest request){
         return categoryService.updateCategoryById(id,request);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory (@PathVariable Integer id){
-        boolean isDeleted = categoryService.deleteCategoryById(id);
-        if (isDeleted){
-            return ResponseEntity.noContent().build();
-        }
-        else {
-            return ResponseEntity.notFound().build();
-        }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCategory(
+            @PathVariable Integer id
+    ) {
+        categoryService.deleteCategoryById(id);
     }
-
 }
