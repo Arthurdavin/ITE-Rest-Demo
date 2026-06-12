@@ -3,15 +3,16 @@ package co.istad.productapisimpledemo.service.impl;
 import co.istad.productapisimpledemo.advisor.ResourceAlreadyExistException;
 import co.istad.productapisimpledemo.dto.request.CreateCategoryRequest;
 import co.istad.productapisimpledemo.dto.request.UpdateCategoryRequest;
-import co.istad.productapisimpledemo.dto.request.UpdateProductRequest;
 import co.istad.productapisimpledemo.dto.response.CategoryResponse;
 import co.istad.productapisimpledemo.entity.Category;
 import co.istad.productapisimpledemo.mapper.CategoryMapper;
 import co.istad.productapisimpledemo.repository.CategoryRepository;
-import co.istad.productapisimpledemo.repository.CategoryRepositoryOld;
 import co.istad.productapisimpledemo.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,21 +28,6 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
-//    private CategoryResponse mapToResponse(Category category){
-//        return new CategoryResponse(
-//                category.getId(),
-//                category.getName(),
-//                category.getDescription()
-//        );
-//    }
-//
-//    private Category mapToEntity(CreateCategoryRequest request){
-//        Category category = new Category();
-//        category.setName(request.name());
-//        category.setDescription(request.description());
-//        return category;
-//    }
-
     @Override
     public CategoryResponse createCategory(CreateCategoryRequest request) {
         Category category = categoryMapper.categoryToRequest(request);
@@ -55,19 +41,29 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponse> getAllCategories() {
-
+    public Page<CategoryResponse> getAllCategories(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return categoryRepository
-                .findAllByIsDeletedFalse()
-                .stream()
-                .map(categoryMapper::categoryEntityToCategoryResponse).toList();
+                .findAllByIsDeletedFalse(pageable)
+                .map(categoryMapper::categoryEntityToCategoryResponse);
     }
+
+//    @Override
+//    public List<CategoryResponse> getAllCategories() {
+//
+//        return categoryRepository
+//                .findAllByIsDeletedFalse()
+//                .stream()
+//                .map(categoryMapper::categoryEntityToCategoryResponse).toList();
+//    }
 
     @Override
     public CategoryResponse getCategoryById(Integer id) {
         Category category = categoryRepository
                 .findByIdAndIsDeletedFalse(id)
-                .orElseThrow(()-> new RuntimeException("category not fount"));
+                .orElseThrow(()-> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,"Category with id = "+ id + "not found"
+                ));
         return categoryMapper.categoryEntityToCategoryResponse(category);
     }
 
@@ -76,9 +72,14 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category exitCategory =
                 categoryRepository
-                .findById(id)
+                .findByIdAndIsDeletedFalse(id)
                 .orElseThrow(()->new RuntimeException("category not found"));
         if (request.name()!=null){
+            if (categoryRepository.existsByNameAndIdNot(request.name(),id)){
+                throw new ResourceAlreadyExistException(
+                        "Category with name: "+ request.name() + " already exists"
+                );
+            }
             exitCategory.setName(request.name());
         }
         if (request.description()!=null){

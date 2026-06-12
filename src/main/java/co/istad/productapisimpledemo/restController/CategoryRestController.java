@@ -7,6 +7,7 @@ import co.istad.productapisimpledemo.dto.response.CategoryResponse;
 import co.istad.productapisimpledemo.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +22,11 @@ public class CategoryRestController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<CategoryResponse> getAllCategories(){
-        return categoryService.getAllCategories();
+    public Page<CategoryResponse> getAllCategories(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ){
+        return categoryService.getAllCategories(page,size);
     }
 
     @GetMapping("/{id}")
