@@ -56,10 +56,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryResponse> getAllCategories() {
-//        Category category =
-//        categoryMapper.categoryToCategoryEntity();
+
         return categoryRepository
-                .findAll()
+                .findAllByIsDeletedFalse()
                 .stream()
                 .map(categoryMapper::categoryEntityToCategoryResponse).toList();
     }
@@ -67,7 +66,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryResponse getCategoryById(Integer id) {
         Category category = categoryRepository
-                .findById(id)
+                .findByIdAndIsDeletedFalse(id)
                 .orElseThrow(()-> new RuntimeException("category not fount"));
         return categoryMapper.categoryEntityToCategoryResponse(category);
     }
@@ -93,7 +92,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategoryById(Integer id) {
-        Category category = categoryRepository.findById(id)
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NoSuchElementException("category with id = " + id));
 
         category.setIsDeleted(true);
